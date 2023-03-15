@@ -86,7 +86,7 @@ class Sandwich(db.Model):
     __tablename__ = 'sandwiches'
     id = db.Column(db.Integer, primary_key=True)
     sandwich_size = (db.Column(db.String(50), nullable=False))
-    price = db.Column(db.Decimal(5, 2), nullable=False)
+    price = db.Column(db.DECIMAL(5, 2), nullable=False)
     
     def __init__(self, sandwich_size, price):
         self.sandwich_size = sandwich_size
