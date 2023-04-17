@@ -1,18 +1,73 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.108.0">
+    <title>Checkout example · Bootstrap v5.3</title>
+
+    <link href="{{ url_for('static',filename='styles/checkout.css') }}" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{{ url_for('static',filename='styles/custom.css') }}" rel="stylesheet">
 </head>
-<body>
-<h3>Sandwich Maker</h3>
+<body class="bg-light">
+
+    <main>
+        <div class="topbar">
+            <h1 class="toptext">Ham Sandwich Maker Machine</h1>
+        </div>
+        <div class="content">
+            <div class="messages">
+                <div class="terminal">
+                    <p id="p1">Messages will display here.</p>
+                </div>
+            </div>
+            <div class="requests">
+                <div class="small">
+                    <button class="smallbtn">Small Sandwich</button>
+                </div>
+                <div class="medium">
+                    <button class="mediumbtn">Medium Sandwich</button>
+                </div>
+                <div class="large">
+                    <button class="largebtn">Large Sandwich</button>
+                </div>
+            </div>
+            <div class="requests">
+                <div class="report">
+                    <button class="reportbtn">Report</button>
+                </div>
+                <div class="off">
+                    <button class="offbtn">Off</button>
+                </div>
+            </div>
+        </div>
+        <div class="sidebar">
+            <div class="dollar">
+                <img src="{{ url_for('static',filename='images/dollar.png') }}" alt="dollar">
+            </div>
+            <div class="quarter">
+                <img src="{{ url_for('static',filename='images/quarter.png') }}" alt="quarter">
+            </div>
+            <div class="nickel">
+                <img src="{{ url_for('static',filename='images/nickel.png') }}" alt="nickel">
+            </div>
+        </div>
+    </main>
+
+    <footer class="my-5 pt-5 text-muted text-center text-small">
+        
+    </footer>
 
 <hr/>
 {%- for message in get_flashed_messages() %}
 {{ message }}
 {%- endfor %}
 
-<h3><a href="{{ url_for('resource') }}">Resource List </a></h3>
-<h3><a href="{{ url_for('sandwich') }}">Sandwich List</a></h3>
+<script src="https://code.jquery.com/jquery-3.6.3.js"></script>
+<script src="{{ url_for('static',filename='scripts/report.js') }}"></script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 from flask import Flask, flash, redirect, url_for, render_template, session
-from flask import request
+from flask import request, jsonify
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -15,6 +15,18 @@ app.secret_key = "mysecret"
 app.config["SQLALCHEMY_DATABASE_URI"] = database_file
 
 db = SQLAlchemy(app)
+
+
+# define a dictionary containing the initial amounts for each resource
+initial_amounts = {'ham': 14, 'bread': 18, 'cheese': 24}
+
+# define the reset_resources() function
+def reset_resources():
+    # update the amount of each resource in the database with its initial value
+    for item, amount in initial_amounts.items():
+        resource = Resource.query.filter_by(item=item).first()
+        resource.amount = amount
+        db.session.commit()
 
 
 class Resource(db.Model):
@@ -34,7 +46,87 @@ def home():
 
 @app.route("/resource")
 def resource():
-    return render_template("resources/list.html", resources=Resource.query.all())
+    resources = Resource.query.all()
+    resources_dict = [{"amount": r.amount, "item": r.item} for r in resources]
+    return jsonify(resources_dict)
+
+@app.route("/makesmall", methods=["POST"])
+def makesmall():
+    # get the sandwich resources from the database
+    resources = Resource.query.all()
+    # set the required resources for a small sandwich
+    required_resources = {"bread": 1, "ham": 1, "cheese": 2}
+    # double the required resources for a medium sandwich
+    for key in required_resources:
+        required_resources[key] *= 1
+    # check if there are enough resources to make the sandwich
+    for resource in resources:
+        if resource.item in required_resources and resource.amount < required_resources[resource.item]:
+            # if there are not enough resources, return an error message
+            return jsonify({"message": "Error: not enough resources to make a medium sandwich"})
+    # if there are enough resources, update the database and return a success message
+    for resource in resources:
+        if resource.item in required_resources:
+            resource.amount -= required_resources[resource.item]
+            db.session.commit()
+    return jsonify({"message": "Medium sandwich successfully made"})
+
+@app.route("/makemedium", methods=["POST"])
+def makemedium():
+    # get the sandwich resources from the database
+    resources = Resource.query.all()
+    # set the required resources for a small sandwich
+    required_resources = {"bread": 1, "ham": 1, "cheese": 2}
+    # double the required resources for a medium sandwich
+    for key in required_resources:
+        required_resources[key] *= 2
+    # check if there are enough resources to make the sandwich
+    for resource in resources:
+        if resource.item in required_resources and resource.amount < required_resources[resource.item]:
+            # if there are not enough resources, return an error message
+            return jsonify({"message": "Error: not enough resources to make a medium sandwich"})
+    # if there are enough resources, update the database and return a success message
+    for resource in resources:
+        if resource.item in required_resources:
+            resource.amount -= required_resources[resource.item]
+            db.session.commit()
+    return jsonify({"message": "Medium sandwich successfully made"})
+
+@app.route("/makelarge", methods=["POST"])
+def makelarge():
+    # get the sandwich resources from the database
+    resources = Resource.query.all()
+    # set the required resources for a small sandwich
+    required_resources = {"bread": 1, "ham": 1, "cheese": 2}
+    # double the required resources for a medium sandwich
+    for key in required_resources:
+        required_resources[key] *= 4
+    # check if there are enough resources to make the sandwich
+    for resource in resources:
+        if resource.item in required_resources and resource.amount < required_resources[resource.item]:
+            # if there are not enough resources, return an error message
+            return jsonify({"message": "Error: not enough resources to make a large sandwich"})
+    # if there are enough resources, update the database and return a success message
+    for resource in resources:
+        if resource.item in required_resources:
+            resource.amount -= required_resources[resource.item]
+            db.session.commit()
+    return jsonify({"message": "Large sandwich successfully made"})
+
+@app.route("/reset", methods=["POST"])
+def reset():
+    resources = Resource.query.all()
+    for resource in resources:
+        if resource.item == "ham":
+            resource.amount = 18
+        elif resource.item == "bread":
+            resource.amount = 14
+        elif resource.item == "cheese":
+            resource.amount = 24
+    db.session.commit()
+
+    # return a success message
+    return jsonify({"message": "Resources reset"})
 
 
 @app.route('/addresource', methods=['GET', 'POST'])
@@ -95,50 +187,7 @@ class Sandwich(db.Model):
 @app.route("/sandwich")
 def sandwich():
     return render_template("sandwiches/list.html", sandwich=Sandwich.query.all())
-
-@app.route("/addsandwich", methods=['GET','POST'])
-def add_sandwich():
-    if request.method == 'POST':
-        if not request.form['sandwich_size'] or not request.form['price']:
-            flash('Please enter all the fields', 'error')
-        else:
-            sandwich = Sandwich(request.form['sandwich_size'], request.form['price'])
-
-            db.session.add(sandwich)
-            db.session.commit()
-
-            flash('Record was successfully added')
-            return redirect(url_for('sandwich'))
-    return render_template('sandwiches/add.html')
-
-@app.route("/updatesandwich/<int:id>/", methods=['GET', 'POST'])
-def update_sandwich(id):
-    if request.method == 'POST':
-        if not request.form['sandwich_size'] or not request.form['price']:
-            flash('Please enter all the fields', 'error')
-        else:
-            sandwich = Sandwich.query.filter_by(id=id).first()
-            sandwich.sandwich_size = request.form['sandwich_size']
-            sandwich.price = request.form['price']
-            db.session.commit()
-
-            flash('Record was successfully updated')
-            return redirect(url_for('sandwich'))
-    data = Sandwich.query.filter_by(id=id).first()
-    return render_template("sandwiches/update.html", data=data)
-
-@app.route("/deletesandwich/<int:id>/", methods=['GET','POST'])
-def delete_sandwich(id):
-    if request.method == 'POST':
-        sandwich = Sandwich.query.filter_by(id=id).first()
-        db.session.delete(sandwich)
-        db.session.commit()
-
-        flash('Record was successfully deleted')
-        return redirect(url_for('sandwich'))
-    data = Sandwich.query.filter_by(id=id).first()
-    return render_template("sandwiches/delete.html", data=data)       
-
+   
 if __name__ == '__main__':
     app.run(port=3001, host="localhost", debug=True)
 
