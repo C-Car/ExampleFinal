@@ -5,6 +5,11 @@ CREATE TABLE IF NOT EXISTS resources (
     amount int NOT NULL,
     PRIMARY KEY (id)
 );
+INSERT INTO resources (item, amount)
+VALUES 
+    ('ham', 14),
+    ('bread', 18),
+    ('cheese', 24);
 
 -- sandwiches table:
 CREATE TABLE IF NOT EXISTS sandwiches (
